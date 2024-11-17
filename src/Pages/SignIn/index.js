@@ -1,19 +1,104 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+
 import { Mycontext } from "../../App";
 import Logo from '../../assets/images/logo.jpg'
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { Link } from "react-router-dom";
 import GoogleImg from "../../assets/images/Google.png";
+import CircularProgress from '@mui/material/CircularProgress';
+import { postDataUser } from '../../utils/api';
+
 
 
 const SignIn = () => {
 
     const context = useContext(Mycontext)
+    const [isLoading, setIsLoading] = useState(false);
+    const history = useNavigate();
+
+
 
     useEffect(()=>{
         context.setIsHeaderFooterShow((false))
     }, []);
+
+    const [formfields, setFormfields] = useState({
+        email:"",
+        password:""
+    });
+
+    const onchangeInput = (e) => {
+        setFormfields(()=>({
+            ...formfields,
+            [e.target.name]:e.target.value
+        }))
+    }
+
+    const signin = (e) => {
+        setIsLoading(true);
+
+        e.preventDefault();
+
+        if(formfields.email===""){
+            context.setAlertBox({
+                open: true,
+                msg: "Vui lòng thêm email",
+                error: true
+            })
+            return false;
+        }
+
+        if(formfields.password===""){
+            context.setAlertBox({
+                open: true,
+                msg: "Vui lòng thêm password",
+                error: true
+            })
+            return false;
+        }
+
+        postDataUser("/api/user/signin", formfields).then((res)=>{
+            try{
+                if(res.status!==false){
+
+                    localStorage.setItem("token", res.token);
+        
+                    const user = {
+                        name:res.user?.name,
+                        email:res.user?.email,
+                        userId:res.user?.id,
+                    }
+                    localStorage.setItem("user", JSON.stringify(user));
+    
+                    context.setAlertBox({
+                        open: true,
+                        msg: "Đăng nhập thành công",
+                        error: false
+                    })
+        
+                    setTimeout(()=>{
+                    setIsLoading(false);
+
+                        // history("/dashboard")
+                        window.location.href = "/"
+                    }, 2000)
+                }else{
+                    setIsLoading(false);
+
+                    context.setAlertBox({
+                        open: true,
+                        msg: res.msg,
+                        error: true
+                    })
+                }
+
+            }catch(error){
+                console.log(error)
+            }
+        })
+
+        }
     
     return(
         <section className="section signInPage">
@@ -29,21 +114,23 @@ const SignIn = () => {
                         <img src={Logo} />
                     </div> */}
 
-                    <form className="mt-3">
+                    <form className="mt-3" onSubmit={signin}>
                         <h2 className="mb-4">Đăng nhập</h2>    
                         <div className="form-group">
                             <TextField id="standard-basic" label="Email" type="email" required
-                                className="w-100" variant="standard" />
+                                className="w-100" variant="standard" name='email' onChange={onchangeInput}/>
                         </div>
                         <div className="form-group">
                             <TextField id="standard-basic" label="Password" type="password" required 
-                                className="w-100" variant="standard" />
+                                className="w-100" variant="standard" name='password' onChange={onchangeInput}/>
                         </div>
                         
                         <a className="border-effect cursor txt">Quên mật khẩu?</a>
                         
                         <div className="d-flex align-items-center mt-3 mb-3">
-                            <Button className="col btn-blue btn-lg btn-big">Đăng nhập</Button>
+                            <Button className="col btn-blue btn-lg btn-big" type='submit'>
+                            {isLoading===true ? <CircularProgress color="inherit" className=' loader' /> : 'Đăng nhập'}
+                            </Button>
                             <Link to="/">
                                 <Button className="btn-lg btn-big col ml-3" variant="outlined" 
                                     onClick={()=>context.setIsHeaderFooterShow(true)}>Hủy</Button>

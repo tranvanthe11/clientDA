@@ -18,33 +18,33 @@ const ProductModal = (props)=>{
         <>
             <Dialog open={true} className='productModal' onClose={()=>context.setIsOpenProductModal(false)}>
                 <Button className="close_" onClick={()=>context.setIsOpenProductModal(false)}><IoClose /></Button>
-                <h4 className='mb-1 font-weight-bold'>Tên sản phẩm</h4>
+                <h4 className='mb-1 font-weight-bold'>{props?.data?.name}</h4>
                 <div className='d-flex align-items-center'>
                     <div className='d-flex align-items-center mr-4'>
                         <span>Brands:</span>
-                        <span className='ml-2'><b>Teelab</b></span>
+                        <span className='ml-2'><b>{props?.data?.brand?.brand}</b></span>
                     </div>
 
-                    <Rating name="read-only" value={4.5} precision={0.5} readOnly size="small"/>
+                    <Rating name="read-only" value={parseInt(props?.data?.rating)} precision={0.5} readOnly size="small"/>
                 </div>
 
                 <hr />
 
                 <div className='row mt-2 productDetailModal'>
                     <div className='col-md-5'>
-                        <ProductZoom />
+                        <ProductZoom images={props?.data?.images} discount={props?.data?.discount} />
 
                     </div>
 
                     <div className='col-md-7'>
                         <div className='d-flex info align-items-center mb-2'>
-                            <span className='oldPrice lg mr-2'>20.000</span>
-                            <span className='netPrice text-danger lg'>19.000</span>
+                            <span className='oldPrice lg mr-2'>{props?.data?.oldPrice}</span>
+                            <span className='netPrice text-danger lg'>{props?.data?.price}</span>
                         </div>
 
                         <span className='badge bg-success'>Còn hàng</span>
 
-                        <p className='mt-3'>Giới thiệu sản phẩm</p>
+                        <p className='mt-3'>{props?.data?.description}</p>
 
 
                         <div className='d-flex align-items-center'>

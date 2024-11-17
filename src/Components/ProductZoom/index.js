@@ -5,7 +5,7 @@ import { useRef, useState } from 'react';
 import InnerImageZoom from 'react-inner-image-zoom';
 import 'react-inner-image-zoom/lib/InnerImageZoom/styles.min.css';
 
-const ProductZoom = () => {
+const ProductZoom = (props) => {
 
     const zoomSliderBig = useRef();
     const zoomSlider = useRef();
@@ -20,7 +20,7 @@ const ProductZoom = () => {
     return(
         <div className="productZoom">
             <div className='productZoom position-relative'>
-                            <div className='badge badge-primary'>25%</div>
+                            <div className='badge badge-primary'>-{props?.discount}%</div>
                             <Swiper
                                 slidesPerView={1}
                                 spaceBetween={0}
@@ -30,27 +30,20 @@ const ProductZoom = () => {
                                 className='zoomSliderBig'
                                 ref={zoomSliderBig}
                             >
-                                <SwiperSlide>
-                                    <div className='item'>
-                                    <InnerImageZoom 
-                                        zoomType="hover" zoomScale={1}
-                                        src={`https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-thun-yoguu-gut7012-den-1.jpg`} />
-                                    </div>
-                                </SwiperSlide>
-                                <SwiperSlide>
-                                    <div className='item'>
-                                    <InnerImageZoom 
-                                        zoomType="hover" zoomScale={1}
-                                        src={`https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-giu-nhiet-nu-ATN7019-CAM%20%20(1).jpg`} />
-                                    </div>
-                                </SwiperSlide>
-                                <SwiperSlide>
-                                    <div className='item'>
-                                    <InnerImageZoom 
-                                        zoomType="hover" zoomScale={1}
-                                        src={`https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-thun-yoguu-gut7012-den-1.jpg`} />
-                                    </div>
-                                </SwiperSlide>
+                                {
+                                    props?.images?.map((item, index)=>{
+                                        return(
+                                            <SwiperSlide key={index}>
+                                                <div className='item'>
+                                                <InnerImageZoom 
+                                                    zoomType="hover" zoomScale={1} key={index}
+                                                    src={`http://localhost:4000/upload/${item}`} />
+                                                </div>
+                                            </SwiperSlide>
+
+                                        )
+                                    })
+                                }
                             </Swiper>
                         </div>
 
@@ -63,24 +56,19 @@ const ProductZoom = () => {
                                 className='zoomSlider'
                                 ref={zoomSlider}
                             >
-                                <SwiperSlide>
-                                    <div className={`item ${slideIndex===0 && 'item_active'}`}>
-                                        <img src={'https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-thun-yoguu-gut7012-den-1.jpg'}
-                                        className='w-100' onClick={() => goto(0) }/>
-                                    </div>
-                                </SwiperSlide>
-                                <SwiperSlide>
-                                    <div className={`item ${slideIndex===1 && 'item_active'}`}>
-                                        <img src={'https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-giu-nhiet-nu-ATN7019-CAM%20%20(1).jpg'}
-                                        className='w-100' onClick={() => goto(1) }/>
-                                    </div>
-                                </SwiperSlide>
-                                <SwiperSlide>
-                                    <div className={`item ${slideIndex===2 && 'item_active'}`}>
-                                        <img src={'https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-thun-yoguu-gut7012-den-1.jpg'}
-                                        className='w-100' onClick={() => goto(2) }/>
-                                    </div>
-                                </SwiperSlide>
+                                                                {
+                                    props?.images?.map((item, index)=>{
+                                        return(
+                                            <SwiperSlide key={index}>
+                                                <div className={`item ${slideIndex===index && 'item_active'}`} >
+                                                    <img src={`http://localhost:4000/upload/${item}`}
+                                                    className='w-100' onClick={() => goto(index) }/>
+                                                </div>
+                                            </SwiperSlide>
+
+                                        )
+                                    })
+                                }
                         </Swiper>
         </div>
     )

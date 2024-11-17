@@ -1,21 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import { Navigation } from 'swiper/modules';
 
-const HomeCat = () => {
+const HomeCat = (props) => {
 
-    const [itemBg, setItemBg] = useState([
-        '#fffced',
-        '#ecffec',
-        '#fffced',
-        '#ecffec',
-        '#fffced',
-        '#ecffec',
-        '#fffced',
-        '#ecffec',
-    ])
+
 
     return (
         <section className="homeCat">
@@ -29,14 +20,14 @@ const HomeCat = () => {
                 className="mySwiper"
             >
             {
-                itemBg?.map((item, index) => {
+                props?.catData?.length!==0 && props?.catData?.map((cat, index) => {
                     return(
 
                         <SwiperSlide>
-                            <div className="item text-center cursor" style={{background:item}}>
-                                <img src='https://res.cloudinary.com/da26rdzwp/image/upload/v1725960852/1725960851153_fash.png' />
+                            <div className="item text-center cursor" style={{background:cat.color}}>
+                                <img src={`http://localhost:4000/upload/${cat.images[0]}`} />
 
-                                <h6>hoodie</h6>
+                                <h6>{cat.name}</h6>
                             </div>
                         </SwiperSlide>
                     )

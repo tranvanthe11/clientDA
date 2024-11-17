@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import { FaAngleRight } from "react-icons/fa";
 
-const Navigation =()=>{
+const Navigation =(props)=>{
 
     const [isOpenSlidebarVal, setIsOpenSlidebarVal] = useState(false);
 
@@ -57,37 +57,20 @@ const Navigation =()=>{
                     <div className='col-sm-10 navPart2 d-flex align-items-center'>
                         <ul className='list list-inline ml-auto'>
                             <li className='list-inline-item'><Link to="/"><Button>Home</Button></Link></li>
-                            <li className='list-inline-item'>
-                                <Link to="/"><Button>Thời trang nam</Button></Link>
-                                <div className='submenu shadow'>
-                                    <Link to="/cat/1"><Button>Polo</Button></Link>
-                                    <Link to="/cat/1"><Button>Sơ mi</Button></Link>
-                                    <Link to="/cat/1"><Button>Quần âu</Button></Link>
-                                </div>
-                            </li>
-                            <li className='list-inline-item'>
-                                <Link to="/"><Button>Thời trang nữ</Button></Link>
-                                <div className='submenu shadow'>
-                                    <Link to="/"><Button>Polo</Button></Link>
-                                    <Link to="/"><Button>Sơ mi</Button></Link>
-                                    <Link to="/"><Button>Quần âu</Button></Link>
-                                </div>
-                            </li>
-                            <li className='list-inline-item'>
-                                <Link to="/"><Button>Thời trang trẻ em</Button></Link>
-                                <div className='submenu shadow'>
-                                    <Link to="/"><Button>Polo</Button></Link>
-                                    <Link to="/"><Button>Sơ mi</Button></Link>
-                                    <Link to="/"><Button>Quần âu</Button></Link>
-                                </div>
-                            </li>                            
-                            {/* <li className='list-inline-item'>
-                                <Link to="/"><Button>Brand 4</Button></Link>
-                                <div className='submenu shadow'>
-                                    <Link to="/"><Button>Thời trang nam</Button></Link>
-                                    <Link to="/"><Button>Thời trang nữ</Button></Link>
-                                </div>
-                            </li> */}
+                            {
+                                props.catData?.length !==0 && props?.catData?.map((item, index)=>{
+                                    return(
+                                        <li className='list-inline-item'>
+                                            <Link to="/"><Button>{item?.name}</Button></Link>
+                                            {/* <div className='submenu shadow'>
+                                                <Link to="/cat/1"><Button>Polo</Button></Link>
+                                                <Link to="/cat/1"><Button>Sơ mi</Button></Link>
+                                                <Link to="/cat/1"><Button>Quần âu</Button></Link>
+                                            </div> */}
+                                        </li>
+                                    )
+                                })
+                            }
                         </ul>       
                     </div>
                 </div>

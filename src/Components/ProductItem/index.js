@@ -11,7 +11,10 @@ const ProductItem = (props) => {
     const context = useContext(Mycontext);
 
     const viewProductDetails = (id) => {
-        context.setIsOpenProductModal(true);
+        context.setIsOpenProductModal({
+            id:id,
+            open:true
+        });
     }
 
 
@@ -19,23 +22,23 @@ const ProductItem = (props) => {
         <>
             <div className={`productItem ${props.itemView}`}>
                 <div className='imgWrapper'>
-                    <img src='https://m.yodycdn.com/fit-in/filters:format(webp)/products/ao-thun-yoguu-gut7012-den-1.jpg'
+                    <img src={`http://localhost:4000/upload/${props?.item?.images[0]}`}
                             className='w-100'/>
 
-                    <span className='badge badge-primary'>25%</span>
+                    <span className='badge badge-primary'>-{props?.item?.discount}%</span>
                     <div className='actions'>
-                        <Button onClick={()=>viewProductDetails(1)}><AiOutlineFullscreen /></Button>
+                        <Button onClick={()=>viewProductDetails(props?.item?.id)}><AiOutlineFullscreen /></Button>
                         <Button><FiHeart /></Button>
                     </div>
                 </div>
                 <div className='info'>
-                    <h4>Gioi thieu san pham</h4>
+                    <h4>{props?.item?.name.substr(0,30)}</h4>
                     <span className='text-success d-block'>Còn hàng</span>
-                    <Rating className='mt-2 mb-2' name="read-only" value={5} readOnly size='small' precision={0.5} />
+                    <Rating className='mt-2 mb-2' name="read-only" value={props?.item?.rating} readOnly size='small' precision={0.5} />
 
                     <div className='d-flex'>
-                        <span className='oldPrice'>20.000</span>
-                        <span className='netPrice text-danger ml-2'>19.000</span>
+                        <span className='oldPrice'>{props?.item?.oldPrice} </span>
+                        <span className='netPrice text-danger ml-2'>{props?.item?.price}</span>
                     </div>
                 </div>
             </div>

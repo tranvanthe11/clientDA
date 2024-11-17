@@ -42,7 +42,8 @@ button{text-transform: capitalize !important;}
 .headerWrapper .top-strip p{color: #fff; font-size: 12px; font-weight: 500;}
 
 .headerWrapper .header{width: 100%; height: auto; padding: 0px 0px;}
-.headerWrapper img{width: 100%;}
+.headerWrapper .logoWrapper{justify-content: center !important;}
+.headerWrapper img{width: 100px; border-radius: 100%;}
 
 .headerWrapper .header .part2 .cityDrop{width: 170px; height: 60px; min-width: 170px; color: 
     #000 !important; border: 1px solid rgba(0,0,0,0.1) !important; border-radius: 7px !important;}
@@ -69,6 +70,8 @@ header .part3 .circle{align-items: center; justify-content: center; min-width: 4
     height: 40px !important; width: 40px !important; border-radius: 50% !important;
     border: 1px solid rgba(0,0,0,0.1) !important; color: #000;}
 header .part3 .circle svg{font-size: 22px;}
+#accDrop ul li{font-size: 16px !important; padding: 7px 15px !important;}
+#accDrop ul li svg{font-size: 18px !important;}
 
 .cartTab .price{font-size: 18px; color: rgba(0,0,0,0.8); font-weight: 700;}
 .cartTab button{background: #fff1ee !important;}
@@ -196,13 +199,15 @@ nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 
 .productItem .info{padding: 15px; }
 .productItem .info h4{font-size: 15px; font-weight: 600;}
-.info .oldPrice{font-size: 16px; font-weight: bold; color: rgba(0,0,0,0.2); text-decoration: line-through;}
-.info .oldPrice.lg{font-size: 20px;}
-.info .netPrice{font-size: 16px; font-weight: bold;}
+.info .oldPrice{font-size: 15px !important; font-weight: bold; color: rgba(0,0,0,0.2); text-decoration: line-through;}
+.info .oldPrice.lg{font-size: 16px !important;}
+.info .netPrice{font-size: 16px; font-weight: bold; ;}
 .info .netPrice.lg{font-size: 20px;}
 
+button .loader{width: 25px !important; height: 25px !important;}
 
-.productItem .actions{position: absolute; top: 20px; right: -100%; z-index: 100; display: flex; 
+
+.productItem .actions{position: absolute; top: 20px; right: 10px; z-index: 100; display: flex; 
     flex-direction: column; gap: 10px; transition: all 0.4s ease-in-out;}
 .productItem .actions button{display: flex; align-items: center; justify-content: center; min-width: 40px !important;
     height: 40px !important; width: 40px !important; border: 1px solid rgba(0,0,0,0.1) !important;  
@@ -216,7 +221,7 @@ nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 
 .productItem .imgWrapper{overflow: hidden;}
 .productItem .imgWrapper img{transition: all 0.4s ease-in-out;}
-.productItem .imgWrapper:hover .actions{opacity: 1; right: 10px;}
+/* .productItem .imgWrapper:hover .actions{opacity: 1; right: 10px;} */
 .productItem .imgWrapper:hover img{transform: scale(1.1);}
 
 .product_row .productItem{border-right: 1px solid transparent !important;}
@@ -246,12 +251,13 @@ footer .linksWrap ul li{list-style: none; margin-bottom: 20px;}
 footer .linksWrap ul li a{color: #71778e; font-size: 143x;}
 footer .linksWrap ul li a:hover{text-decoration: none;}
 
-.productModal .MuiPaper-elevation{padding: 25px; position: relative; width: 800px !important;
-    max-width: 800px !important;}
+.productModal .MuiPaper-elevation{padding: 25px; position: relative; width: 750px !important;
+    max-width: 750px !important;}
 .productModal h4{font-size: 20px !important; color: rgba(0,0,0,0.8) !important;}
 
 .productZoom{width: 100%; height: auto; padding: 0px;
     overflow: hidden; border-radius: 15px;}
+    .productZoomBig{height: 350px; overflow: hidden;}
 .productZoom .badge{position: absolute; top: 20px; left: 20px; z-index: 100;}
 .zoomSliderBig{width: 100% !important;}
 
@@ -260,6 +266,7 @@ footer .linksWrap ul li a:hover{text-decoration: none;}
 .zoomSlider .item{border: 2px solid transparent !important; overflow: hidden; border-radius: 15px;
     cursor: pointer;}
 .zoomSlider .item_active{border: 2px solid rgba(0,0,0,0.2) !important;}
+
 
 /* .zoomSlider .swiper-button-prev{width: 30px !important; height: 30px !important; top: 60% !important;}
 .zoomSlider .swiper-button-next{width: 30px !important; height: 30px !important; top: 60% !important;} */
