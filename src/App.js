@@ -14,7 +14,7 @@ import ProductDetails from "./Pages/ProductDetails";
 import Cart from "./Pages/Cart";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { fetchDataFromApi } from "./utils/api";
+import { fetchDataFromApi, postData, postDataUser } from "./utils/api";
 
 const Mycontext = createContext();
 
@@ -27,6 +27,7 @@ function App() {
   const [isHeaderFooterShow, setIsHeaderFooterShow] = useState(true);
   const [isLogin, setIsLogin] = useState(false)
   const [activeCat, setActiveCat] = useState('')
+  const [cartData, setCartData] = useState([])
   const [isOpenProductModal, setIsOpenProductModal] = useState({
     id:'',
     open:false
@@ -42,6 +43,8 @@ function App() {
     email:"",
     userId:""
   })
+
+
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
@@ -66,7 +69,17 @@ function App() {
     fetchDataFromApi("/api/brand").then((res)=>{
       setBrandData(res)
     })
+
+    fetchDataFromApi("/api/cart").then((res)=>{
+      setCartData(res)
+    })
   },[])
+
+  const getCartData=()=>{
+    fetchDataFromApi("/api/cart").then((res)=>{
+      setCartData(res)
+    })
+  }
 
 
   useEffect(()=>{
@@ -94,6 +107,29 @@ function App() {
     }
   },[isLogin])
 
+  const addToCart=(data)=>{
+
+
+    postDataUser(`/api/cart/add`, data).then((res)=>{
+      if(res.status!==false){
+          setAlertBox({
+            open: true,
+            msg: "Đã thêm vào giỏ hàng",
+            error: false
+        })
+    getCartData();
+
+
+      }else{
+        setAlertBox({
+          open: true,
+          msg: res.msg,
+          error: true
+      })
+      }
+    })
+  }
+
   const values ={
     cityList,
     setSelectedCity,
@@ -113,15 +149,16 @@ function App() {
     brandData, 
     setBrandData,
     activeCat, 
-    setActiveCat
+    setActiveCat,
+    addToCart,
+    cartData, 
+    setCartData,
+    getCartData
   }
 
   return (
     <BrowserRouter>
       <Mycontext.Provider value={values}>
-      {
-        isHeaderFooterShow === true && <Header />
-      }
       <Snackbar open={alertBox.open} autoHideDuration={6000} onClose={handleClose}>
         <Alert
           onClose={handleClose}
@@ -132,10 +169,13 @@ function App() {
           {alertBox.msg}
         </Alert>
       </Snackbar>
+      {
+        isHeaderFooterShow === true && <Header />
+      }
         {/* <Header /> */}
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
-          <Route path="/cat/:id" exact={true} element={<Listing />} />
+          <Route path="/category/:id" exact={true} element={<Listing />} />
           <Route path="/productDetails/:id" exact={true} element={<ProductDetails />} />
           <Route path="/cart" exact={true} element={<Cart />} />
           <Route path="/signIn" exact={true} element={<SignIn/>} />

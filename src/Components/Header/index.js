@@ -132,11 +132,18 @@ const Header =()=>{
                                     {/* <Button className='btn-blue btn-round mr-3'>Sign In</Button> */}
                                     {/* <Button className='circle mr-3'><CiUser /></Button> */}
                                     <div className='ml-auto cartTab d-flex align-items-center'>
-                                        <span className='price'>100</span>
+                                        <span className='price'>
+                                        {
+                                            context?.cartData?.length!==0 && 
+                                            context?.cartData?.map(item=>parseInt(item.price)*item.quantity).reduce((total, value)=> total+ value, 0)
+                                        }
+                                        </span>
                                         <div className='position-relative ml-2'>
-                                            <Button className='circle'><IoCartOutline /></Button>
-                                            <span className='count d-flex align-items-center
-                                            justify-content-center'>4</span>
+                                            <Link to={"/cart"}>
+                                                <Button className='circle'><IoCartOutline /></Button>
+                                                <span className='count d-flex align-items-center
+                                                justify-content-center'>{context?.cartData?.length}</span>
+                                            </Link>
                                         </div>
                                     </div>
                                 </div>

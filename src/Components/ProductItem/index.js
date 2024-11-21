@@ -5,6 +5,7 @@ import { FiHeart } from "react-icons/fi";
 import ProductModal from "../ProductModal";
 import { useContext, useState } from "react";
 import { Mycontext } from '../../App';
+import { Link } from "react-router-dom";
 
 const ProductItem = (props) => {
 
@@ -22,9 +23,10 @@ const ProductItem = (props) => {
         <>
             <div className={`productItem ${props.itemView}`}>
                 <div className='imgWrapper'>
+                    <Link to={`/productDetails/${props.item?.id}`}>
                     <img src={`http://localhost:4000/upload/${props?.item?.images[0]}`}
                             className='w-100'/>
-
+                    </Link>
                     <span className='badge badge-primary'>-{props?.item?.discount}%</span>
                     <div className='actions'>
                         <Button onClick={()=>viewProductDetails(props?.item?.id)}><AiOutlineFullscreen /></Button>

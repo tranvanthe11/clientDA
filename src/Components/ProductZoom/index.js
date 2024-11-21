@@ -19,7 +19,7 @@ const ProductZoom = (props) => {
 
     return(
         <div className="productZoom">
-            <div className='productZoom position-relative'>
+            <div className='productZoom productZoomBig position-relative'>
                             <div className='badge badge-primary'>-{props?.discount}%</div>
                             <Swiper
                                 slidesPerView={1}

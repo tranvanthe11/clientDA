@@ -61,7 +61,7 @@ const Navigation =(props)=>{
                                 props.catData?.length !==0 && props?.catData?.map((item, index)=>{
                                     return(
                                         <li className='list-inline-item'>
-                                            <Link to="/"><Button>{item?.name}</Button></Link>
+                                            <Link to={`/category/${item.id}`}><Button>{item?.name}</Button></Link>
                                             {/* <div className='submenu shadow'>
                                                 <Link to="/cat/1"><Button>Polo</Button></Link>
                                                 <Link to="/cat/1"><Button>Sơ mi</Button></Link>

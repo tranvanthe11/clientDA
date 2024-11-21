@@ -20,10 +20,10 @@ const Home =()=>{
     const [catData, setCatData] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
     const [productsData, setProductsData] = useState([]);
-    const [selectedCat, setSelectedCat] = useState('Quần jeans');
+    const [selectedCat, setSelectedCat] = useState('aohoodie');
     const [filterData, setFilterData] = useState([]);
 
-    const [jeanData, setJeanData] = useState([]);
+    // const [jeanData, setJeanData] = useState([]);
 
     const [value, setValue] = useState(0);
 
@@ -67,7 +67,6 @@ const Home =()=>{
     useEffect(()=>{
         fetchDataFromApi(`/api/products?catName=${selectedCat}`).then((res)=>{
             setFilterData(res.products);
-            console.log(res)
         })
     },[selectedCat])
 
@@ -128,31 +127,12 @@ const Home =()=>{
                                  </Swiper>
                             </div>
 
-                            <div className="d-flex align-items-center mt-4">
+                            {/* <div className="d-flex align-items-center mt-4">
                                 <div className="info w-75">
                                     <h3 className="mb-0 hd">Sản phẩm</h3>
                                 </div>
 
-                                {/* <div className='ml-auto'>
-                                <Tabs
-                                    value={value}
-                                    onChange={handleChange}
-                                    variant="scrollable"
-                                    scrollButtons="auto"
-                                    className='filterTabs'
-                                >
-                                    {
-                                        context.categoryData?.map((item, index)=>{
-                                            return(
-                                                <Tab className='item' label={item.name} 
-                                                onClick={()=>selectCat(item.name)}/>
-                                            )
-                                        })
-                                    }
-                                </Tabs>
-                                </div> */}
-
-                                {/* <Button className='viewAllBtn ml-auto'>Tất cả <FaArrowRightLong className='ml-1'/></Button> */}
+                                <Button className='viewAllBtn ml-auto'>Tất cả <FaArrowRightLong className='ml-1'/></Button>
                             </div>
 
                             <div className='product_row productRow2 w-100 mt-4 d-flex'>
@@ -163,11 +143,11 @@ const Home =()=>{
                                         )
                                     })
                                 }
-                            </div>
+                            </div> */}
 
                             <div className="d-flex align-items-center mt-4">
                                 <div className="info w-75">
-                                    <h3 className="mb-0 hd">Quần jeans</h3>
+                                    <h3 className="mb-0 hd">Sản phẩm</h3>
                                 </div>
 
                                 <div className='ml-auto'>
@@ -182,7 +162,7 @@ const Home =()=>{
                                         context.categoryData?.map((item, index)=>{
                                             return(
                                                 <Tab className='item' label={item.name} 
-                                                onClick={()=>selectCat(item.name)}/>
+                                                onClick={()=>selectCat(item.nameNoAccent)}/>
                                             )
                                         })
                                     }
