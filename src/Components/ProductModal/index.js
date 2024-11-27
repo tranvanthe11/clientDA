@@ -2,17 +2,64 @@ import Dialog from '@mui/material/Dialog';
 import { IoClose } from "react-icons/io5";
 import Button from '@mui/material/Button';
 import Rating from '@mui/material/Rating';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import 'react-inner-image-zoom/lib/InnerImageZoom/styles.min.css';
 import QuantityBox from '../QuantityBox';
 import { FiHeart } from "react-icons/fi";
 import { Mycontext } from '../../App';
 import 'swiper/css';
 import ProductZoom from '../ProductZoom';
+import { postDataUser } from '../../utils/api';
 
 const ProductModal = (props)=>{
 
+    let [productQuantity, setProductQuantity] = useState();
+
     const context = useContext(Mycontext);
+
+    const quantity =(val)=>{
+        setProductQuantity(val)
+    }
+
+    const selectedItem = () =>{
+
+    }
+
+    const addToMyList=(id)=>{
+        const user = JSON.parse(localStorage.getItem("user"))
+        if(user!==undefined && user!== null && user!==""){
+
+            const data={
+                productTitle: props?.data?.name,
+                images: props?.data?.images[0],
+                price: props?.data?.price,
+                productId:id,
+                userId:user?.userId
+            }
+    
+            postDataUser(`/api/myList/add/`, data).then((res)=>{
+                if(res.status!==false){
+                    context.setAlertBox({
+                        open: true,
+                        msg: "Đã thêm sản phẩm vào danh sách ưa thích",
+                        error: false
+                    })
+                }else{
+                    context.setAlertBox({
+                        open: true,
+                        msg: res.msg,
+                        error: true
+                    })
+                }
+            })
+        }else{
+            context.setAlertBox({
+                open: true,
+                msg: "Vui lòng đăng nhập để tiếp tục",
+                error: true
+            })
+        }
+    }
 
     return (
         <>
@@ -48,12 +95,13 @@ const ProductModal = (props)=>{
 
 
                         <div className='d-flex align-items-center'>
-                            <QuantityBox />
+                            <QuantityBox quantity={quantity} selectedItem={selectedItem}/>
                             <Button className='btn-blue btn-lg btn-big btn-round ml-3'>Thêm vào giỏ</Button>
                         </div>
 
                         <div className='d-flex align-items-center mt-4 actions'>
-                            <Button className='btn-round btn-sml' variant='outlined'><FiHeart className='mr-2'/>Thêm vào danh sách ưa thích</Button>
+                            <Button onClick={()=>addToMyList(props?.data?.id)}
+                            className='btn-round btn-sml' variant='outlined'><FiHeart className='mr-2'/>Thêm vào danh sách ưa thích</Button>
                         </div>
                     </div>
                 </div>

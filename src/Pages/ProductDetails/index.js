@@ -7,8 +7,9 @@ import { useContext, useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
 import Tooltip from '@mui/material/Tooltip';
 import { useParams } from "react-router-dom";
-import { fetchDataFromApi } from "../../utils/api";
+import { fetchDataFromApi, postDataUser } from "../../utils/api";
 import { Mycontext } from "../../App";
+import CircularProgress from '@mui/material/CircularProgress';
 
 
 
@@ -17,9 +18,12 @@ const ProductDetails = () => {
     const [activeSize, setActiveSize] = useState(null);
     const [activeColor, setActiveColor] = useState(null);
     const [activeTabs, setActiveTabs] = useState(0);
+    const [reviewsData, setReviewsData] = useState([]);
+
 
     let [cartFields, setcartFields] = useState({})
     let [productQuantity, setProductQuantity] = useState();
+    const [isLoading, setIsLoading] = useState(false);
 
 
     const [productData, setProductData] = useState();
@@ -42,7 +46,11 @@ const ProductDetails = () => {
         fetchDataFromApi(`/api/products/${id}`).then((res)=>{
             setProductData(res);
         })
-    }, [])
+
+        fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res)=>{
+            setReviewsData(res)
+        })
+    }, [id])
 
     const quantity =(val)=>{
         setProductQuantity(val)
@@ -122,6 +130,93 @@ const ProductDetails = () => {
     const selectedItem = () =>{
 
     }
+
+    const [rating, setRating] = useState(1);
+
+    const [reviews, setReviews] = useState({
+        productId:"",
+        customerName:"",
+        customerId:"",
+        review:"",
+        customerRating:0
+    });
+
+    const onChangeInput=(e)=>{
+        setReviews(()=>({
+            ...reviews,
+            [e.target.name]: e.target.value
+        }))
+    }
+
+    const onChangeRating=(e)=>{
+        setRating(e.target.value)
+        reviews.customerRating =  e.target.value
+    }
+
+    const addReview=(e)=>{
+        e.preventDefault();
+
+
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        reviews.customerId =  user?.userId
+        reviews.customerName =  user?.name
+        reviews.productId =  id
+
+        setIsLoading(true);
+
+        postDataUser("/api/productReviews/add", reviews).then((res)=>{
+            setIsLoading(false);
+            reviews.customerRating = 1
+
+            setReviews({
+                review: "",
+                customerRating: 1
+            })
+
+
+            fetchDataFromApi(`/api/productReviews?productId=${id}`).then((res)=>{
+                setReviewsData(res)
+            })
+
+        })
+    }
+
+    const addToMyList=(id)=>{
+        const user = JSON.parse(localStorage.getItem("user"))
+        if(user!==undefined && user!== null && user!==""){
+
+            const data={
+                productTitle: productData?.name,
+                images: productData?.images[0],
+                price: productData?.price,
+                productId:id,
+                userId:user?.userId
+            }
+    
+            postDataUser(`/api/myList/add/`, data).then((res)=>{
+                if(res.status!==false){
+                    context.setAlertBox({
+                        open: true,
+                        msg: "Đã thêm sản phẩm vào danh sách ưa thích",
+                        error: false
+                    })
+                }else{
+                    context.setAlertBox({
+                        open: true,
+                        msg: res.msg,
+                        error: true
+                    })
+                }
+            })
+        }else{
+            context.setAlertBox({
+                open: true,
+                msg: "Vui lòng đăng nhập để tiếp tục",
+                error: true
+            })
+        }
+    }
     return(
         <>
             <section className="productDetails section">
@@ -150,8 +245,12 @@ const ProductDetails = () => {
                             </ul>
 
                             <div className='d-flex info align-items-center mb-3'>
-                                <span className='oldPrice lg mr-2'>{productData?.oldPrice}</span>
-                                <span className='netPrice text-danger lg'>{productData?.price}</span>
+                                <span className='oldPrice lg mr-2'>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(productData?.oldPrice)}
+                                </span>
+                                <span className='netPrice text-danger lg'>
+                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(productData?.price)}
+                                </span>
                             </div>
 
                             {/* <span className='badge bg-success'>Còn hàng</span> */}
@@ -161,8 +260,9 @@ const ProductDetails = () => {
                                 {stockStatus === "Hết hàng" && <span className="badge bg-danger">{stockStatus}</span>}
                             </div>
 
-                            <p className="mt-2">{productData?.description}
-                            </p>
+                            {productData?.description.split('\n').map((line, index) => (
+                                <p className="mt-2" key={index}>{line}</p>
+                            ))}
                             {
                                 uniqueSizes?.length!==0 && 
                                 <div className='productSize d-flex align-items-center'>
@@ -211,7 +311,8 @@ const ProductDetails = () => {
                                 </Button>
                                 <Tooltip title="Them vao danh sach ua thich" placement="top">
 
-                                    <Button className="btn-lue btn-lg btn-big btn-circle ml-4">
+                                    <Button onClick={()=>addToMyList(id)}
+                                    className="btn-lue btn-lg btn-big btn-circle ml-4">
                                         <FiHeart/>
                                     </Button>
                                 </Tooltip>
@@ -240,7 +341,7 @@ const ProductDetails = () => {
                                 <li className="list-inline-item">
                                     <Button className={`${activeTabs === 2 && 'active'}`}
                                         onClick={() => {setActiveTabs(2)}}>
-                                        Reviews (3)
+                                        Reviews ({reviewsData?.length})
                                     </Button>
                                 </li>
                             </ul>
@@ -290,49 +391,55 @@ const ProductDetails = () => {
                                             <h3>Hỏi và trả lời</h3>
                                             <br />
 
-                                            <div className="card p-4 reviewsCard flex-row">
-                                                <div className="user-info d-flex flex-column align-items-center">
-                                                    <div className="rounded-circle">
-                                                        <img 
-                                                            src="https://scontent.fhan2-5.fna.fbcdn.net/v/t39.30808-6/428179812_1422408578704539_3659365527880145355_n.jpg?stp=cp6_dst-jpg&_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHUqoQM6XdywYT75wMKhcrCWbiv8foSd31ZuK_x-hJ3fWE2dDNyIyrJOjz_-QqZniE1q55SNpeJoSxtqJwe4Lyf&_nc_ohc=9wWi4WZdEN4Q7kNvgFfmzDY&_nc_zt=23&_nc_ht=scontent.fhan2-5.fna&_nc_gid=AGAicByka9sqIAlTzpLuVcb&oh=00_AYBiJtpw0Th8nCGx1a4Jg8f1VFpcHZriGhJrtVXfb-GX4g&oe=6723E26B" 
-                                                            alt="User Avatar"
-                                                        />
-                                                    </div>
-                                                    <span className="text-g font-weight-bold mt-2">The Tran</span>
-                                                </div>
-                                                <div className="info pl-5">
-                                                    <div className="d-flex align-items-center w-100">
-                                                        <h5>19/10/2024</h5>
-                                                        <div className="ml-auto">
-                                                            <Rating name="haft-rating-read" value={4.5} precision={0.5} readOnly size="small"/>
-                                                        </div>
-                                                    </div>
+                                            {
+                                                reviewsData?.length!==0 && 
+                                                reviewsData?.slice(0)?.reverse()?.map((item, index)=>{
+                                                    return(
+                                                        <div className="card p-4 reviewsCard flex-row mb-3" key={index}>
+                                                            {/* <div className="user-info d-flex flex-column align-items-center">
+                                                                <div className="rounded-circle">
+                                                                    <img 
+                                                                        src="https://scontent.fhan2-5.fna.fbcdn.net/v/t39.30808-6/428179812_1422408578704539_3659365527880145355_n.jpg?stp=cp6_dst-jpg&_nc_cat=104&ccb=1-7&_nc_sid=6ee11a&_nc_eui2=AeHUqoQM6XdywYT75wMKhcrCWbiv8foSd31ZuK_x-hJ3fWE2dDNyIyrJOjz_-QqZniE1q55SNpeJoSxtqJwe4Lyf&_nc_ohc=9wWi4WZdEN4Q7kNvgFfmzDY&_nc_zt=23&_nc_ht=scontent.fhan2-5.fna&_nc_gid=AGAicByka9sqIAlTzpLuVcb&oh=00_AYBiJtpw0Th8nCGx1a4Jg8f1VFpcHZriGhJrtVXfb-GX4g&oe=6723E26B" 
+                                                                        alt="User Avatar"
+                                                                    />
+                                                                </div>
+                                                                <span className="text-g font-weight-bold mt-2">The Tran</span>
+                                                            </div> */}
+                                                            <div className="info pl-1">
+                                                                <div className="d-flex align-items-center w-100">
+                                                                    <h5>{item?.customerName}</h5>
+                                                                    <div className="ml-auto">
+                                                                        <Rating name="haft-rating-read" value={item?.customerRating} readOnly size="small"/>
+                                                                    </div>
+                                                                </div>
+                                                                <h6>{item?.dateCreated}</h6>
 
-                                                    <p>Binh luan Binh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luanBinh luan</p>
-                                                </div>
-                                            </div>
+                                                                <p>{item?.review}</p>
+                                                            </div>
+                                                        </div>
+
+                                                    )
+                                                })
+                                            }
+
 
                                             <br className="res-hide" />
                                             <br className="res-hide" />
                                             
-                                            <form className="reviewForm">
+                                            <form className="reviewForm" onSubmit={addReview}>
                                                 <h4>Thêm review</h4>
                                                 <div className="form-group">
                                                     <textarea className="form-control"
-                                                    placeholder="Viet 1 review"
-                                                    name="review" ></textarea>
+                                                    placeholder="Viet 1 review" value={reviews.review}
+                                                    name="review" onChange={onChangeInput} ></textarea>
                                                 </div>
 
                                                 <div className="row">
-                                                    <div className="col-md-6">
-                                                        <div className="form-group">
-                                                            <input type='text' className="form-control" placeholder="Name" name="userName"></input>
-                                                        </div>
-                                                    </div>
 
                                                     <div className="col-md-6">
                                                         <div className="form-group">
-                                                            <Rating name="rating" value={4.5} precision={0.5} />
+                                                            <Rating name="customerRating" onChange={onChangeRating} 
+                                                            value={rating} />
                                                         </div>
                                                     </div>
                                                 </div>
@@ -340,7 +447,8 @@ const ProductDetails = () => {
                                                 <br />
                                                 <div className="form-group">
                                                     <Button type="submit" className="btn-blue btn-lg btn-big btn-round">
-                                                        Submit review
+                                                        {isLoading===true ? <CircularProgress color="inherit" 
+                                                        className=' loader' /> : 'Submit review'}
                                                     </Button>
                                                 </div>
                                             </form>

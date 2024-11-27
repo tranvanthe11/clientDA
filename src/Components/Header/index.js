@@ -55,6 +55,7 @@ const Header =()=>{
             msg: "Đăng xuất thành công",
             error: false
         })
+        context.setIsLogin(false)
 
         setTimeout(() => {
             history("/signIn");
@@ -108,18 +109,22 @@ const Header =()=>{
                                         </ListItemIcon>
                                         My account
                                         </MenuItem>
+                                        <Link to="/orders">
                                         <MenuItem onClick={handleClose}>
                                         <ListItemIcon>
                                             <FaClipboardCheck fontSize="small" />
                                         </ListItemIcon>
                                         Orders
                                         </MenuItem>
-                                        <MenuItem onClick={handleClose}>
-                                        <ListItemIcon>
-                                            <FaHeart  fontSize="small" />
-                                        </ListItemIcon>
-                                        My List
-                                        </MenuItem>
+                                        </Link>
+                                        <Link to="/myList">
+                                            <MenuItem onClick={handleClose}>
+                                            <ListItemIcon>
+                                                <FaHeart  fontSize="small" />
+                                            </ListItemIcon>
+                                            My List
+                                            </MenuItem>
+                                        </Link>
                                         <MenuItem onClick={logout}>
                                         <ListItemIcon>
                                             <IoLogOutOutline  fontSize="small" />
@@ -134,8 +139,13 @@ const Header =()=>{
                                     <div className='ml-auto cartTab d-flex align-items-center'>
                                         <span className='price'>
                                         {
-                                            context?.cartData?.length!==0 && 
-                                            context?.cartData?.map(item=>parseInt(item.price)*item.quantity).reduce((total, value)=> total+ value, 0)
+                                            context?.cartData?.length!==0 ? 
+                                            new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(
+                                                context?.cartData
+                                                    ?.map(item => parseInt(item.price) * item.quantity)
+                                                    ?.reduce((total, value) => total + value, 0))
+                                            :
+                                            0
                                         }
                                         </span>
                                         <div className='position-relative ml-2'>
@@ -154,7 +164,7 @@ const Header =()=>{
 
                 {
                     context?.categoryData?.length !==0 && 
-                    <Navigation catData={context.categoryData} />
+                    <Navigation catData={context?.categoryData} />
                 }
 
             </div>

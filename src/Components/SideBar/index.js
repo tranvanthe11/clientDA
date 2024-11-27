@@ -47,7 +47,7 @@ const Sidebar = (props) => {
             <div className="sidebar">
             <div className='sticky'>
                 <div className="filterBox">
-                    <h6>loai</h6>
+                    <h6>Loại sản phẩm</h6>
 
                     <div className='scroll'>
                         <RadioGroup
@@ -75,17 +75,23 @@ const Sidebar = (props) => {
                 <div className="filterBox">
                     <h6>Tìm theo giá</h6>
 
-                    <RangeSlider value={value} onInput={setValue} min={0} max={1000000} step={1} />
+                    <RangeSlider value={value} onInput={setValue} min={0} max={1000000} step={50000} />
 
                     <div className='d-flex pt-2 pb-2 priceRange'>
-                        <span><strong className='text-dark'> {value[0]}</strong></span>
-                        <span className='ml-auto'> <strong className='text-dark'> {value[1]}</strong></span>
+                        {/* <span><strong className='text-dark'> {value[0]}</strong></span> */}
+                        <strong className='text-dark'>
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value[0])}
+                        </strong>
+                        {/* <span className='ml-auto'> <strong className='text-dark'> {value[1]}</strong></span> */}
+                        <strong className='text-dark ml-auto'>
+                            {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value[1])}
+                        </strong>
                     </div>
 
                 </div>
 
                 <div className="filterBox">
-                    <h6>Tim theo danh gia sao</h6>
+                    <h6>Tìm theo đánh giá sao</h6>
 
                     <div className='scroll'>
                         <ul>

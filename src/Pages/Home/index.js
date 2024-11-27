@@ -57,7 +57,7 @@ const Home =()=>{
             setNewProducts(res);
         })
 
-        fetchDataFromApi("/api/products?perPage=10").then((res)=>{
+        fetchDataFromApi("/api/products").then((res)=>{
             setProductsData(res);
         })
 
@@ -127,12 +127,12 @@ const Home =()=>{
                                  </Swiper>
                             </div>
 
-                            {/* <div className="d-flex align-items-center mt-4">
+                            <div className="d-flex align-items-center mt-4">
                                 <div className="info w-75">
-                                    <h3 className="mb-0 hd">Sản phẩm</h3>
+                                    <h3 className="mb-0 hd">Tất cả sản phẩm</h3>
                                 </div>
 
-                                <Button className='viewAllBtn ml-auto'>Tất cả <FaArrowRightLong className='ml-1'/></Button>
+                                {/* <Button className='viewAllBtn ml-auto'>Tất cả <FaArrowRightLong className='ml-1'/></Button> */}
                             </div>
 
                             <div className='product_row productRow2 w-100 mt-4 d-flex'>
@@ -143,7 +143,7 @@ const Home =()=>{
                                         )
                                     })
                                 }
-                            </div> */}
+                            </div>
 
                             <div className="d-flex align-items-center mt-4">
                                 <div className="info w-75">
@@ -169,7 +169,6 @@ const Home =()=>{
                                 </Tabs>
                                 </div>
 
-                                {/* <Button className='viewAllBtn ml-auto'>Tất cả <FaArrowRightLong className='ml-1'/></Button> */}
                             </div>
 
                             <div className='product_row w-100 mt-4'>

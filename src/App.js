@@ -15,6 +15,9 @@ import Cart from "./Pages/Cart";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { fetchDataFromApi, postData, postDataUser } from "./utils/api";
+import MyList from "./Pages/MyList";
+import Checkout from "./Pages/Checkout";
+import Orders from "./Pages/Orders";
 
 const Mycontext = createContext();
 
@@ -58,6 +61,7 @@ function App() {
 
   };
 
+
   useEffect(()=>{
     getCity("https://provinces.open-api.vn/api/");
 
@@ -70,15 +74,17 @@ function App() {
       setBrandData(res)
     })
 
-    fetchDataFromApi("/api/cart").then((res)=>{
-      setCartData(res)
-    })
+    const user = JSON.parse(localStorage.getItem("user"))
+        fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res)=>{
+            setCartData(res);
+        })
   },[])
 
   const getCartData=()=>{
-    fetchDataFromApi("/api/cart").then((res)=>{
-      setCartData(res)
-    })
+    const user = JSON.parse(localStorage.getItem("user"))
+        fetchDataFromApi(`/api/cart?userId=${user?.userId}`).then((res)=>{
+            setCartData(res);
+        })
   }
 
 
@@ -180,6 +186,9 @@ function App() {
           <Route path="/cart" exact={true} element={<Cart />} />
           <Route path="/signIn" exact={true} element={<SignIn/>} />
           <Route path="/signUp" exact={true} element={<SignUp/>} />
+          <Route path="/myList" exact={true} element={<MyList/>} />
+          <Route path="/checkout" exact={true} element={<Checkout/>} />
+          <Route path="/orders" exact={true} element={<Orders/>} />
         </Routes>
         {
           isHeaderFooterShow === true && <Footer />

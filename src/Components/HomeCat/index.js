@@ -25,7 +25,7 @@ const HomeCat = (props) => {
 
                         <SwiperSlide>
                             <div className="item text-center cursor" style={{background:cat.color}}>
-                                <img src={`http://localhost:4000/upload/${cat.images[0]}`} />
+                                <img src={cat.images[0]} />
 
                                 <h6>{cat.name}</h6>
                             </div>
