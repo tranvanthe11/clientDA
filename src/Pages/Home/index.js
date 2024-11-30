@@ -17,7 +17,7 @@ import Tab from '@mui/material/Tab';
 
 const Home =()=>{
 
-    const [catData, setCatData] = useState([]);
+    const [homeSlide, setHomeSlide] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
     const [productsData, setProductsData] = useState([]);
     const [selectedCat, setSelectedCat] = useState('aohoodie');
@@ -61,6 +61,10 @@ const Home =()=>{
             setProductsData(res);
         })
 
+        fetchDataFromApi("/api/homeBanner").then((res)=>{
+            setHomeSlide(res);
+        })
+
         
     }, [])
     
@@ -73,7 +77,9 @@ const Home =()=>{
 
     return(
         <div >
-            <HomeBanner />
+            {
+                homeSlide?.length!==0 && <HomeBanner data={homeSlide} />
+            }
             {
                 context.categoryData?.length!==0 &&
                 <HomeCat catData={context.categoryData} /> 

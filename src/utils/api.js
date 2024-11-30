@@ -45,7 +45,30 @@ export const editData = async (url, updatedData) => {
     return res;
 }
 
+export const editDataUser = async (url, updatedData) => {
+    try {
+        const response = await axios.put(`http://localhost:4000${url}`, updatedData);
+        return response.data; // Trả về dữ liệu từ server
+    } catch (error) {
+        console.error("Error editing data:", error);
+        return error.response ? error.response.data : { msg: "Something went wrong" };
+    }
+};
+
 export const deleteData = async (url) => {
     const {res} = await axios.delete(`http://localhost:4000${url}`)
     return res;
+}
+
+export const postDataImg = async (url, formData) => {
+    try {
+        // Gửi formData với axios
+        const response = await axios.post("http://localhost:4000" + url, formData);
+        
+        // Trả về data từ response
+        return response.data; // response.data chứa dữ liệu trả về từ server
+    } catch (error) {
+        console.error("Error posting data", error);
+        throw error; // Nếu có lỗi, throw error để xử lý ở nơi gọi hàm
+    }
 }

@@ -18,6 +18,7 @@ import { fetchDataFromApi, postData, postDataUser } from "./utils/api";
 import MyList from "./Pages/MyList";
 import Checkout from "./Pages/Checkout";
 import Orders from "./Pages/Orders";
+import MyAccount from "./Pages/MyAccount";
 
 const Mycontext = createContext();
 
@@ -189,6 +190,7 @@ function App() {
           <Route path="/myList" exact={true} element={<MyList/>} />
           <Route path="/checkout" exact={true} element={<Checkout/>} />
           <Route path="/orders" exact={true} element={<Orders/>} />
+          <Route path="/myAccount" exact={true} element={<MyAccount/>} />
         </Routes>
         {
           isHeaderFooterShow === true && <Footer />

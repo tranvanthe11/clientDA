@@ -5,7 +5,8 @@ import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 
-const HomeBanner = () => {
+const HomeBanner = (props) => {
+    console.log(props)
 
     return(
         <div className="container mt-3">
@@ -22,37 +23,19 @@ const HomeBanner = () => {
                     modules={[Navigation, Autoplay]}
                     className="mySwiper"
                     >
+                        {
+                            props?.data?.length!==0 &&  props?.data?.map((item, index)=>{
+                                return(
+                                    <SwiperSlide key={index}>
+                                        <div className="item">
+                                            <img src={item?.images} className="w-100"></img>
+                                        </div>
+                                    </SwiperSlide>
 
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0sil68ehi1b66_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0y3rlq1dkj35e_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0y4us25ipt909_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0sil68ehi1b66_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0y3rlq1dkj35e_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
-                    <SwiperSlide>
-                        <div className="item">
-                            <img src="https://cf.shopee.vn/file/vn-11134258-7ras8-m0y4us25ipt909_xxhdpi" className="w-100"></img>
-                        </div>
-                    </SwiperSlide>
+                                )
+                            })
+                        }
+
                 </Swiper>
             </div>
         </div>

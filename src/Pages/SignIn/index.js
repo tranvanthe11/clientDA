@@ -58,9 +58,20 @@ const SignIn = () => {
             return false;
         }
 
+        
+
         postDataUser("/api/user/signin", formfields).then((res)=>{
             try{
                 if(res.status!==false){
+                    if (res.user?.isBlock) {
+                        context.setAlertBox({
+                            open: true,
+                            msg: "Tài khoản của bạn đã bị khóa",
+                            error: true,
+                        });
+                        setIsLoading(false);
+                        return;
+                    }
 
                     localStorage.setItem("token", res.token);
         
@@ -80,7 +91,6 @@ const SignIn = () => {
                     setTimeout(()=>{
                     setIsLoading(false);
 
-                        // history("/dashboard")
                         window.location.href = "/"
                     }, 2000)
                 }else{
@@ -99,6 +109,16 @@ const SignIn = () => {
         })
 
         }
+
+    const forgotPassword =()=>{
+        if(formfields.email===""){
+            context.setAlertBox({
+                open: true,
+                msg: "Hãy nhập email",
+                error: true
+            })
+        }
+    }
     
     return(
         <section className="section signInPage">
@@ -125,7 +145,7 @@ const SignIn = () => {
                                 className="w-100" variant="standard" name='password' onChange={onchangeInput}/>
                         </div>
                         
-                        <a className="border-effect cursor txt">Quên mật khẩu?</a>
+                        <a className="border-effect cursor txt" onClick={forgotPassword}>Quên mật khẩu?</a>
                         
                         <div className="d-flex align-items-center mt-3 mb-3">
                             <Button className="col btn-blue btn-lg btn-big" type='submit'>
