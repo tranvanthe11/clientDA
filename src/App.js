@@ -24,7 +24,6 @@ const Mycontext = createContext();
 
 function App() {
 
-  const [cityList, setCityList] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [brandData, setBrandData] = useState([]);
   const [selectedCity, setSelectedCity] = useState('');
@@ -64,8 +63,6 @@ function App() {
 
 
   useEffect(()=>{
-    getCity("https://provinces.open-api.vn/api/");
-
     fetchDataFromApi("/api/category").then((res)=>{
       setCategoryData(res.categoryList)
       setActiveCat(res.categoryList[0].name)
@@ -95,12 +92,6 @@ function App() {
       setProductData(res)
     })
   },[isOpenProductModal])
-
-  const getCity =async(url)=>{
-    const responsive = await axios.get(url).then((res)=>{
-      setCityList(res.data)
-    })
-  }
 
   useEffect(()=>{
     const token = localStorage.getItem("token");
@@ -138,7 +129,6 @@ function App() {
   }
 
   const values ={
-    cityList,
     setSelectedCity,
     selectedCity,
     isOpenProductModal,

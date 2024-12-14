@@ -7,9 +7,11 @@ import Box from '@mui/material/Box';
 import { IoMdCloudUpload } from "react-icons/io";
 import TextField from '@mui/material/TextField';
 import { Button } from "@mui/material";
-import { editData, editDataUser, fetchDataFromApi, postDataImg } from "../../utils/api";
+import { deleteData, editData, editDataUser, fetchDataFromApi, postDataImg, postDataUser } from "../../utils/api";
 import { Mycontext } from "../../App";
 import NoImage from '../../assets/images/noimage.png'
+import axios from 'axios';
+import { InputLabel, MenuItem, FormControl, Select, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
 
 function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -76,6 +78,30 @@ const MyAccount = () => {
     const [isSelectdFiles,setIsSelectdFiles] = useState(false);
     const [files, setFiles] = useState([]);
 
+    const [addresses, setAddresses] = useState([]);
+    const [isEditingAddress, setIsEditingAddress] = useState(false);
+    const [editingAddress, setEditingAddress] = useState(null);
+    const [formFields1, setFormFields1] = useState({
+        fullName:"",
+        phone:"",
+        province:"",
+        district:"",
+        ward:"",
+        street:""
+    })
+
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [useNewAddress, setUseNewAddress] = useState(false);
+
+
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedWard, setSelectedWard] = useState('');
+
     const user = JSON.parse(localStorage.getItem("user"));
     
     useEffect(()=>{
@@ -100,12 +126,216 @@ const MyAccount = () => {
                 phone: res.phone || "",
                 images: res.images || []
             });
-            // setPreviews(res.images);
             setPreviews(res.images || []); 
-            console.log(previews)
-            // context.setProgress(100);
         })
+
+        fetchDataFromApi(`/api/addresses?userId=${user.userId}`).then(res => {
+            setAddresses(res);
+        });
     }, [])
+
+    const handleAddAddress = async (newAddress) => {
+        postDataUser('/api/addresses/add', newAddress).then((res)=>{
+            setFormFields1({});
+            fetchDataFromApi(`/api/addresses?userId=${user.userId}`).then(res => {
+                setAddresses(res);
+            });
+        }); 
+    };
+    
+    const handleEditAddress = async () => {
+        const { name, phone, street, province, district, ward, isDefault } = formFields1;
+    
+        const fullAddress = `${street}, ${ward}, ${district}, ${province}`;
+    
+        const addressData = {
+            name,   
+            phone, 
+            address: fullAddress,
+            province,  
+            district,   
+            ward,
+            street,   
+            isDefault, 
+        };
+    
+        try {
+            editData(`/api/addresses/${editingAddress._id}`, addressData).then((res)=>{
+                fetchDataFromApi(`/api/addresses?userId=${user.userId}`).then(res => {
+                    setAddresses(res);
+                });
+            });
+
+    
+            setIsEditingAddress(false);
+            setEditingAddress(null);
+            handleCloseDialog();
+        } catch (error) {
+            console.error("Error updating address:", error);
+        }
+    };
+    
+    const handleDeleteAddress = (addressId) => {
+        deleteData(`/api/addresses/${addressId}`).then((res)=>{
+            fetchDataFromApi(`/api/addresses?userId=${user.userId}`).then(res => {
+                setAddresses(res);
+            });
+        });
+    };
+    
+    const handleSetDefaultAddress = async (addressId) => {
+        try {
+            // Tìm thông tin của địa chỉ cần cập nhật (bao gồm tất cả các trường)
+            const addressToUpdate = addresses.find(address => address._id === addressId);
+            
+            if (!addressToUpdate) {
+                console.error("Address not found");
+                return;
+            }
+    
+            // Tạo dữ liệu cần gửi lên API, bao gồm tất cả các trường thông tin địa chỉ
+            const updatedAddressData = {
+                userId: user.userId,  // Truyền userId của người dùng
+                name: addressToUpdate.name,
+                phone: addressToUpdate.phone,
+                address: addressToUpdate.address,
+                province: addressToUpdate.province,
+                district: addressToUpdate.district,
+                ward: addressToUpdate.ward,
+                street: addressToUpdate.street,
+                isDefault: true,
+            };
+    
+            editData(`/api/addresses/${addressId}`, updatedAddressData).then((res)=>{
+                fetchDataFromApi(`/api/addresses?userId=${user.userId}`).then(res => {
+                    setAddresses(res);
+                });
+            });
+    
+        } catch (error) {
+            console.error("Error setting default address:", error);
+        }
+    };
+
+    const [openDialog, setOpenDialog] = useState(false);
+
+    const handleOpenDialog = () => {
+        setOpenDialog(true);
+    }
+    const handleCloseDialog = () => {
+        setFormFields1({});
+        setOpenDialog(false);
+    }
+
+    const handleChangeProvinces = (event) => {
+        setSelectedProvince(event.target.value);
+        setFormFields1(()=>(
+            {
+                ...formFields1,
+                province:event.target.value
+            }
+        ))
+    };
+
+    const handleChangeDistricts = (event) => {
+        setSelectedDistrict(event.target.value);
+        setFormFields1(()=>(
+            {
+                ...formFields1,
+                district:event.target.value
+            }
+        ))
+    };
+
+    const handleChangeWards = (event) => {
+        setSelectedWard(event.target.value);
+        setFormFields1(()=>(
+            {
+                ...formFields1,
+                ward:event.target.value
+            }
+        ))
+    };
+
+    const onChangeInput = (e) =>{
+        setFormFields1(()=>({
+            ...formFields1,
+            [e.target.name]: e.target.value
+        }))
+    }
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            const cachedProvinces = localStorage.getItem('provinces'); 
+            if (cachedProvinces && cachedProvinces !== "undefined") {
+                setProvinces(JSON.parse(cachedProvinces));
+            } else {
+                try {
+                    const response = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
+                    const provinceData = response?.data?.data;
+                    console.log(provinceData)
+                    setProvinces(provinceData);
+                    localStorage.setItem('provinces', JSON.stringify(provinceData));
+                } catch (error) {
+                    console.error("Lỗi khi lấy danh sách tỉnh/thành phố:", error);
+                }
+            }
+        };
+        fetchProvinces();
+    }, []);
+
+    useEffect(() => {
+        if (selectedProvince) {
+            const fetchDistricts = async () => {
+                const cachedDistricts = localStorage.getItem(`districts_${selectedProvince}`);
+                if (cachedDistricts && cachedDistricts !== "undefined" && cachedDistricts !== null) {
+                    setDistricts(JSON.parse(cachedDistricts));
+                } else {
+                    try {
+                        const selectedProvinceCode = provinces.find(province => province.name === selectedProvince)?.id;
+                        if (selectedProvinceCode) {
+                            const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${selectedProvinceCode}.htm`);
+                            console.log(response)
+                            const districtData = response?.data?.data;
+                            setDistricts(districtData);
+                            localStorage.setItem(`districts_${selectedProvince}`, JSON.stringify(districtData)); 
+                        }
+                    } catch (error) {
+                        console.error("Lỗi khi lấy danh sách quận/huyện:", error);
+                    }
+                }
+            };
+            fetchDistricts();
+        } else {
+            setDistricts([]);
+            setWards([]);
+        }
+    }, [selectedProvince]);
+    
+    useEffect(() => {
+        if (selectedDistrict) {
+            const fetchWards = async () => {
+                const cachedWards = localStorage.getItem(`wards_${selectedDistrict}`);
+                if (cachedWards && cachedWards !== "undefined") {
+                    setWards(JSON.parse(cachedWards));
+                } else {
+                    try {
+                        const selectedDistrictCode = districts.find(district => district.name === selectedDistrict)?.id;
+                        if (selectedDistrictCode) {
+                            const response = await axios.get(`https://esgoo.net/api-tinhthanh/3/${selectedDistrictCode}.htm`);
+                            const wardData = response?.data?.data;
+                            setWards(wardData);
+                            localStorage.setItem(`wards_${selectedDistrict}`, JSON.stringify(wardData)); 
+                        }
+                    } catch (error) {
+                        console.error("Lỗi khi lấy danh sách phường/xã:", error);
+                    }
+                }
+            };
+            fetchWards();
+        } else {
+            setWards([]);
+        }
+    }, [selectedDistrict]);
 
     useEffect(()=>{
         if(!imgFiles) return;
@@ -293,8 +523,9 @@ const MyAccount = () => {
                 <Box sx={{ width: '100%' }} className="myAccBox card border-0">
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-                        <Tab label="Edit Profile" {...a11yProps(0)} />
-                        <Tab label="Đổi mật khẩu" {...a11yProps(1)} />
+                            <Tab label="Edit Profile" {...a11yProps(0)} />
+                            <Tab label="Đổi mật khẩu" {...a11yProps(1)} />
+                            <Tab label="Địa chỉ" {...a11yProps(2)} />
                         </Tabs>
                     </Box>
                     <CustomTabPanel value={value} index={0}>
@@ -380,7 +611,203 @@ const MyAccount = () => {
                             </div>
                         </form>
                     </CustomTabPanel>
+                    <CustomTabPanel value={value} index={2}>
+                        <div className="address">
+                            <div className="d-flex align-items-center m-2">
+                                <h5>Quản lý địa chỉ</h5>
+                                <Button className="ml-auto btn-blue btn-lg "
+                                onClick={handleOpenDialog}>Thêm địa chỉ mới</Button>
+
+                            </div>
+                            <div>
+                                {addresses.length === 0 ? (
+                                    <p>Không có địa chỉ nào.</p>
+                                ) : (
+                                    <>
+                                    {addresses?.map((address) => (
+                                    <div className='row cssAddress' key={address._id} >
+                                        <div className='col-md-10'>
+                                            <h6 className="mt-2">{address?.name} - {address?.phone}</h6>
+                                            <h6>{address?.address}</h6>
+                                            <p className="text-danger">
+                                            {address.isDefault ? 'Mặc định' : ''}
+                                            </p>
+                                        </div>
+                                        <div className='col-md-2 mb-1'>
+                                            <Button 
+                                            onClick={() => {
+                                                setFormFields1({
+                                                    ...address,
+                                                    isDefault: address.isDefault,
+                                                });
+                                                setEditingAddress(address); 
+                                                setOpenDialog(true);
+                                            }}
+                                            >Cập nhật</Button>
+                                            <Button onClick={() => handleDeleteAddress(address._id)}>Xóa</Button>
+                                            {!address.isDefault && (
+                                                <Button className="border" onClick={() => handleSetDefaultAddress(address._id)}>Đặt làm mặc định</Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    ))}
+
+                                </>
+                                )}
+                            </div>
+
+                            <Dialog open={openDialog} onClose={handleCloseDialog}>
+                            <DialogTitle>{editingAddress ? 'Cập nhật địa chỉ' : 'Thêm địa chỉ mới'}</DialogTitle>
+                            <DialogContent>
+                                <form onSubmit={(e) => {
+                                    e.preventDefault(); 
+
+                                    const fullAddress = `${formFields1.street}, ${formFields1.ward}, ${formFields1.district}, ${formFields1.province}`;
+                                    const newAddress = {
+                                        name: formFields1.fullName,
+                                        phone: formFields1.phone,
+                                        address: fullAddress,
+                                        province: formFields1.province,
+                                        district: formFields1.district,
+                                        ward: formFields1.ward,
+                                        street: formFields1.street,
+                                        isDefault: formFields1.isDefault,
+                                        userId: user.userId,
+                                    };
+
+                                    if (editingAddress) {
+                                        handleEditAddress(newAddress); 
+                                    } else {
+                                        handleAddAddress(newAddress);
+                                    }
+
+                                    setIsEditingAddress(false);  
+                                    setEditingAddress(null);   
+                                    handleCloseDialog(); 
+                                }}>
+                                    <div className="row mt-3">
+                                        <div className="col-md-6">
+                                            <div className="form-group">
+                                                <TextField
+                                                    label="Họ và tên"
+                                                    className="w-100"
+                                                    name="fullName"
+                                                    variant="outlined"
+                                                    value={formFields1.name}
+                                                    onChange={onChangeInput}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <div className="form-group">
+                                                <TextField
+                                                    label="Số điện thoại"
+                                                    className="w-100"
+                                                    name="phone"
+                                                    variant="outlined"
+                                                    value={formFields1.phone}
+                                                    onChange={onChangeInput}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mt-3">
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="province-select-label">Tỉnh/Thành phố</InputLabel>
+                                                    <Select
+                                                        id="province-select"
+                                                        value={formFields1.province}
+                                                        label="Tỉnh/Thành phố"
+                                                        onChange={handleChangeProvinces}
+                                                    >
+                                                        {provinces?.map((province) => (
+                                                            <MenuItem key={province?.id} value={province?.name}>
+                                                                {province?.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mt-3">
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="district-select-label">Quận/Huyện</InputLabel>
+                                                    <Select
+                                                        value={formFields1.district}
+                                                        label="Quận/Huyện"
+                                                        onChange={handleChangeDistricts}
+                                                    >
+                                                        {districts?.map((district) => (
+                                                            <MenuItem key={district?.id} value={district?.name}>
+                                                                {district?.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mt-3">
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="ward-select-label">Phường/Xã</InputLabel>
+                                                    <Select
+                                                        id="ward-select"
+                                                        value={formFields1.ward}
+                                                        label="Phường/Xã"
+                                                        onChange={handleChangeWards}
+                                                    >
+                                                        {wards?.map((ward) => (
+                                                            <MenuItem key={ward?.id} value={ward?.name}>
+                                                                {ward?.name}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                </FormControl>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="row mt-3">
+                                        <div className="col-md-12">
+                                            <div className="form-group">
+                                                <TextField
+                                                    label="Địa chỉ cụ thể"
+                                                    className="w-100"
+                                                    name="street"
+                                                    variant="outlined"
+                                                    value={formFields1.street}
+                                                    onChange={onChangeInput}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                <DialogActions>
+                                    <Button onClick={handleCloseDialog} color="primary">
+                                        Hủy
+                                    </Button>
+                                    <Button type="submit" color="primary">
+                                        {editingAddress ? 'Cập nhật' : 'Thêm'} địa chỉ
+                                    </Button>
+                                </DialogActions>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+
+
+                        </div>
+                    </CustomTabPanel>
                     </Box>
+
             </div>
         </section>
     )

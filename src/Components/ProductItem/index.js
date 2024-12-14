@@ -55,6 +55,16 @@ const ProductItem = (props) => {
         }
     }
 
+    const getPriceToDisplay = () => {
+        const promotionSize = props?.item?.sizesAndColors.find(item => item.isPromotion && item.pricePromotion > 0);
+        if (promotionSize) {
+            return promotionSize.pricePromotion;
+        }
+        return props?.item?.price;
+    };
+
+    const priceToDisplay = getPriceToDisplay();
+
 
     return(
         <>
@@ -80,7 +90,7 @@ const ProductItem = (props) => {
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(props?.item?.oldPrice)}
                         </span>
                         <span className='netPrice text-danger ml-2'>
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(props?.item?.price)}
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(priceToDisplay)}
                         </span>
                     </div>
                 </div>

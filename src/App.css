@@ -58,7 +58,7 @@ button{text-transform: capitalize !important;}
 .headerWrapper .header .part2 .cityDrop span.ml-auto svg{opacity: 0.7;}
 /* .headerWrapper .header .part2 button:focus {outline: none !important; box-shadow: none !important;} */
   
-.headerSearch{width: 57%; height: 60px; background: #f3f4f7; padding: 5px; position: relative;
+.headerSearch{width: 70%; height: 55px; background: #f3f4f7; padding: 5px; position: relative;
     border-radius: 5px; border: 1px solid rgba(0,0,0,0.1);}
 .headerSearch input{background: transparent !important; outline: none !important;
     font-size: 15px; color: rgba(0,0,0,0.7); width: 100%; height: 45px; border: 0px !important;
@@ -147,6 +147,7 @@ nav .navPart2 ul li:hover .submenu{opacity: 1; visibility: inherit; top: 100%;}
 .homeBannerSection{position: relative;}
 .homeBannerSection .swiper{overflow: inherit !important;}
 .homeBannerSection .swiper .item{overflow: hidden; border-radius: 10px;}
+
 .homeBannerSection *{outline: none !important;}
 
 .swiper-button-next, .swiper-button-prev{right: 3% !important; position: absolute; top: 45%; z-index: 100; display: flex;
@@ -501,3 +502,7 @@ opacity: 0;}
 .userImage .overlay svg{font-size: 40px; color: #fff;}
 
 .myAccBox .form-group{margin-bottom: 20px;}
+
+.promotion{background: rgb(248, 35, 35); color: #fff; border-radius: 5px;}
+
+.address .cssAddress{border-top: 1px solid rgba(0,0,0,0.1);}

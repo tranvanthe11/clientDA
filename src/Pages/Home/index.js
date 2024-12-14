@@ -18,10 +18,12 @@ import Tab from '@mui/material/Tab';
 const Home =()=>{
 
     const [homeSlide, setHomeSlide] = useState([]);
+    const [leftSlide, setLeftSlide] = useState([]);
     const [newProducts, setNewProducts] = useState([]);
     const [productsData, setProductsData] = useState([]);
     const [selectedCat, setSelectedCat] = useState('aohoodie');
     const [filterData, setFilterData] = useState([]);
+    const [promotionProducts, setPromotionProducts] = useState([]);
 
     // const [jeanData, setJeanData] = useState([]);
 
@@ -51,10 +53,13 @@ const Home =()=>{
 
     useEffect(()=>{
 
-        // setSelectedCat(context.categoryData[0]?.name)
 
         fetchDataFromApi(`/api/products/newProduct`).then((res)=>{
             setNewProducts(res);
+        })
+
+        fetchDataFromApi(`/api/products/promotions`).then((res)=>{
+            setPromotionProducts(res.products);
         })
 
         fetchDataFromApi("/api/products").then((res)=>{
@@ -63,6 +68,10 @@ const Home =()=>{
 
         fetchDataFromApi("/api/homeBanner").then((res)=>{
             setHomeSlide(res);
+        })
+        fetchDataFromApi("/api/leftBanner").then((res)=>{
+            setLeftSlide(res);
+            console.log(res)
         })
 
         
@@ -90,19 +99,57 @@ const Home =()=>{
                     <div className="row">
                         <div className="col-md-3">
                             <div className='sticky'>
-                                <div className="banner">
-                                    <img src="https://canifa.com/img/500/750/resize/8/t/8th22s008-se002-2.webp"
-                                        className="cursor w-100" />
-                                </div>
-                                <div className="banner mt-3">
-                                    <img src="https://canifa.com/img/500/750/resize/8/t/8th22s008-se002-2.webp"
-                                        className="cursor w-100" />
-                                </div>
+                                {
+                                    leftSlide?.length!==0 && leftSlide?.map((img, index)=>{
+                                        return(
+                                            <div className="banner mb-2" key={index}>
+                                                <img src={img?.images}
+                                                    className="cursor w-100" />
+                                            </div>
+
+                                        )
+
+                                    })
+                                }
                             </div>
                         </div>
                         <div className="col-md-9 productRow">
+                            {
+                                promotionProducts?.length!==0 &&
+                                <div>
+                                    <div className="d-flex align-items-center promotion p-2">
+                                        <div className="info w-75">
+                                            <h3 className="mb-0 hd">Flash Sale</h3>
+                                        </div>
 
-                            <div className="d-flex align-items-center">
+                                    </div>
+
+                                    <div className='product_row w-100 mt-3'>
+                                        <Swiper
+                                            slidesPerView={4}
+                                            spaceBetween={0}
+                                            pagination={{
+                                            clickable: true,
+                                            }}
+                                            modules={[Navigation]}
+                                            className="mySwiper"
+                                        >
+                                        {
+                                            promotionProducts?.length!==0 && promotionProducts?.map((item, index)=>{
+                                                return(
+                                                    <SwiperSlide key={index}>
+                                                        <ProductItem item={item}/>
+                                                    </SwiperSlide>
+                                                )
+                                            })
+                                        }
+                                        
+                                        </Swiper>
+                                    </div>
+                                </div>
+                            }
+
+                            <div className="d-flex align-items-center mt-4">
                                 <div className="info w-75">
                                     <h3 className="mb-0 hd">Sản phẩm mới</h3>
                                 </div>

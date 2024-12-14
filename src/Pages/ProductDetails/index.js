@@ -12,7 +12,6 @@ import { Mycontext } from "../../App";
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-
 const ProductDetails = () => {
 
     const [activeSize, setActiveSize] = useState(null);
@@ -24,6 +23,10 @@ const ProductDetails = () => {
     let [cartFields, setcartFields] = useState({})
     let [productQuantity, setProductQuantity] = useState();
     const [isLoading, setIsLoading] = useState(false);
+    const [promotionPrice, setPromotionPrice] = useState(null);
+    const [isPromotion, setIsPromotion] = useState(false);
+    const [price, setPrice] = useState('');
+    const [isPromotionQuantity, setIsPromotionQuantity] = useState('');
 
 
     const [productData, setProductData] = useState();
@@ -65,6 +68,23 @@ const ProductDetails = () => {
             const selectedStock = productData?.sizesAndColors?.find(
                 (item) => item.size === activeSize && item.color === activeColor
             );
+
+            if (selectedStock) {
+                setPrice(selectedStock.isPromotion ? selectedStock.pricePromotion : productData?.price);
+                setPromotionPrice(selectedStock.isPromotion ? selectedStock.pricePromotion : null);
+                setIsPromotion(selectedStock.isPromotion);
+                setIsPromotionQuantity(selectedStock.promotionQuantity)
+
+            }else {
+                const defaultPromotion = productData?.sizesAndColors?.find(item => item.isPromotion);
+                if (defaultPromotion) {
+                    setPromotionPrice(defaultPromotion.pricePromotion);
+                    setIsPromotion(true);
+                    setPrice(defaultPromotion.pricePromotion);
+                } else {
+                    setPrice(productData?.price);
+                }
+            }
 
             if (selectedStock?.countInStock <=0) {
                 setStockStatus("Hết hàng");
@@ -116,12 +136,13 @@ const ProductDetails = () => {
         const user = JSON.parse(localStorage.getItem("user"))
 
         cartFields.productTitle=productData?.name
+        cartFields.catName=productData?.catName
         cartFields.images=productData?.images[0]
         cartFields.color=activeColor
         cartFields.size=activeSize
-        cartFields.price=productData?.price
+        cartFields.price=isPromotion ? promotionPrice : productData?.price
         cartFields.quantity=productQuantity
-        cartFields.subTotal=parseInt(productData?.price * productQuantity)
+        cartFields.subTotal=parseInt((isPromotion ? promotionPrice : productData?.price) * productQuantity)
         cartFields.productId=productData?.id
         cartFields.userId=user?.userId
         context.addToCart(cartFields);
@@ -242,14 +263,35 @@ const ProductDetails = () => {
                                         <span className="cursor ml-2">1 review</span>
                                     </div>
                                 </li>
+                                <li className="list-inline-item">
+                                    <div className="d-flex align-items-center">
+                                        <span className="mr-2">Đã bán:</span>
+                                        <span>{productData?.sold}</span>
+                                    </div>
+                                </li>
                             </ul>
+                            {
+                                isPromotion &&
+                                <div className="promotion d-flex align-items-center p-1">
+                                    <span className="ml-2 ">Flash Sale</span>
+                                    <span className="ml-auto">{isPromotionQuantity ? `Số lượng sale: ${isPromotionQuantity}` : ""}</span>
+                                    
+                                </div>
+                            }
 
                             <div className='d-flex info align-items-center mb-3'>
                                 <span className='oldPrice lg mr-2'>
                                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(productData?.oldPrice)}
                                 </span>
                                 <span className='netPrice text-danger lg'>
-                                {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(productData?.price)}
+                                    {
+                                        isPromotion ? 
+                                        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(promotionPrice)
+
+                                        :
+
+                                        new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price)
+                                    }
                                 </span>
                             </div>
 

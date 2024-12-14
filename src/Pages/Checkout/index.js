@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import TextField from '@mui/material/TextField';
-import { Button } from '@mui/material';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
@@ -9,6 +8,7 @@ import axios from 'axios';
 import { deleteData, fetchDataFromApi, postDataUser } from '../../utils/api';
 import { Mycontext } from '../../App';
 import { useNavigate } from 'react-router-dom';
+import { Button, Radio, RadioGroup, FormControlLabel, FormLabel } from '@mui/material';
 
 const Checkout = ()=>{
 
@@ -23,8 +23,12 @@ const Checkout = ()=>{
         province:"",
         district:"",
         ward:"",
-        street:""
+        street:"",
     })
+
+    const [savedAddresses, setSavedAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState(null);
+    const [useNewAddress, setUseNewAddress] = useState(false);
 
     const [totalAmount, setTotalAmount] = useState()
 
@@ -35,6 +39,21 @@ const Checkout = ()=>{
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedWard, setSelectedWard] = useState('');
     const [cartData, setCartData] = useState([]);
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem("user"))
+        if (user) {
+          fetchDataFromApi(`/api/addresses?userId=${user.userId}`)
+            .then(res => setSavedAddresses(res))
+            .catch(err => console.error("Error fetching addresses:", err));
+        }
+      }, []);
+    
+      const handleAddressSelection = (e) => {
+        const addressId = e.target.value;
+        setSelectedAddressId(addressId);
+        setUseNewAddress(addressId === "new");
+      };
 
 
     const handleChangeProvinces = (event) => {
@@ -86,12 +105,13 @@ const Checkout = ()=>{
     useEffect(() => {
         const fetchProvinces = async () => {
             const cachedProvinces = localStorage.getItem('provinces'); 
-            if (cachedProvinces) {
+            if (cachedProvinces && cachedProvinces !== "undefined") {
                 setProvinces(JSON.parse(cachedProvinces));
             } else {
                 try {
-                    const response = await axios.get('https://vn-public-apis.fpo.vn/provinces/getAll?limit=-1');
-                    const provinceData = response?.data?.data?.data;
+                    const response = await axios.get('https://esgoo.net/api-tinhthanh/1/0.htm');
+                    const provinceData = response?.data?.data;
+                    console.log(provinceData)
                     setProvinces(provinceData);
                     localStorage.setItem('provinces', JSON.stringify(provinceData));
                 } catch (error) {
@@ -106,14 +126,15 @@ const Checkout = ()=>{
         if (selectedProvince) {
             const fetchDistricts = async () => {
                 const cachedDistricts = localStorage.getItem(`districts_${selectedProvince}`);
-                if (cachedDistricts) {
+                if (cachedDistricts && cachedDistricts !== "undefined" && cachedDistricts !== null) {
                     setDistricts(JSON.parse(cachedDistricts));
                 } else {
                     try {
-                        const selectedProvinceCode = provinces.find(province => province.name === selectedProvince)?.code;
+                        const selectedProvinceCode = provinces.find(province => province.name === selectedProvince)?.id;
                         if (selectedProvinceCode) {
-                            const response = await axios.get(`https://vn-public-apis.fpo.vn/districts/getByProvince?provinceCode=${selectedProvinceCode}&limit=-1`);
-                            const districtData = response?.data?.data?.data;
+                            const response = await axios.get(`https://esgoo.net/api-tinhthanh/2/${selectedProvinceCode}.htm`);
+                            console.log(response)
+                            const districtData = response?.data?.data;
                             setDistricts(districtData);
                             localStorage.setItem(`districts_${selectedProvince}`, JSON.stringify(districtData)); 
                         }
@@ -133,14 +154,14 @@ const Checkout = ()=>{
         if (selectedDistrict) {
             const fetchWards = async () => {
                 const cachedWards = localStorage.getItem(`wards_${selectedDistrict}`);
-                if (cachedWards) {
+                if (cachedWards && cachedWards !== "undefined") {
                     setWards(JSON.parse(cachedWards));
                 } else {
                     try {
-                        const selectedDistrictCode = districts.find(district => district.name === selectedDistrict)?.code;
+                        const selectedDistrictCode = districts.find(district => district.name === selectedDistrict)?.id;
                         if (selectedDistrictCode) {
-                            const response = await axios.get(`https://vn-public-apis.fpo.vn/wards/getByDistrict?districtCode=${selectedDistrictCode}&limit=-1`);
-                            const wardData = response?.data?.data?.data;
+                            const response = await axios.get(`https://esgoo.net/api-tinhthanh/3/${selectedDistrictCode}.htm`);
+                            const wardData = response?.data?.data;
                             setWards(wardData);
                             localStorage.setItem(`wards_${selectedDistrict}`, JSON.stringify(wardData)); 
                         }
@@ -159,75 +180,55 @@ const Checkout = ()=>{
     const checkout= async (e)=>{
         e.preventDefault();
 
-        if(formFields.fullName===""){
-            context.setAlertBox({
+        const user = JSON.parse(localStorage.getItem("user"));
+        let selectedAddress = null;
+
+        if (useNewAddress) {
+            if (!formFields.fullName || !formFields.phone || !formFields.province || !formFields.district || !formFields.ward || !formFields.street) {
+              context.setAlertBox({
                 open: true,
-                msg: "Vui lòng điền Họ và tên",
+                msg: "Vui lòng điền đầy đủ thông tin địa chỉ mới",
                 error: true
-            })
-            return false;
-        }
+              });
+              return;
+            }
+      
+            const newAddress = {
+              userId: user.userId,
+              name: formFields.fullName,
+              phone: formFields.phone,
+              address: `${formFields.street}, ${formFields.ward}, ${formFields.district}, ${formFields.province}`,
+              province: formFields.province,
+              district: formFields.district,
+              ward: formFields.ward,
+              street: formFields.street,
+              isDefault: false 
+            };
 
-        if(formFields.phone===""){
-            context.setAlertBox({
-                open: true,
-                msg: "Vui lòng điền số diện thoại",
-                error: true
-            })
-            return false;
-        }
+            try {
+                const res = await postDataUser(`/api/addresses/add`, newAddress);
+                selectedAddress = res; 
+              } catch (err) {
+                console.error("Error adding new address:", err);
+                context.setAlertBox({
+                  open: true,
+                  msg: "Có lỗi xảy ra khi thêm địa chỉ mới",
+                  error: true
+                });
+                return;
+              }
+            } else {
+              selectedAddress = savedAddresses.find(addr => addr._id === selectedAddressId);
+              if (!selectedAddress) {
+                context.setAlertBox({
+                  open: true,
+                  msg: "Vui lòng chọn địa chỉ giao hàng",
+                  error: true
+                });
+                return;
+              }
+            }
 
-        if(formFields.province===""){
-            context.setAlertBox({
-                open: true,
-                msg: "Vui lòng chọn tỉnh/thành phố",
-                error: true
-            })
-            return false;
-        }
-
-        if(formFields.district===""){
-            context.setAlertBox({
-                open: true,
-                msg: "Vui lòng chọn quận/huyện",
-                error: true
-            })
-            return false;
-        }
-
-        if(formFields.ward===""){
-            context.setAlertBox({
-                open: true,
-                msg: "Vui lòng chọn phường/xã",
-                error: true
-            })
-            return false;
-        }
-
-        if(formFields.street===""){
-            context.setAlertBox({
-                open: true,
-                msg: "Vui lòng thêm số nhà và đường",
-                error: true
-            })
-            return false;
-        }
-
-        const addressInfo = {
-            name: formFields.fullName,
-            phone: formFields.phone,
-            address:formFields.street + ", " + formFields.ward + ", " + formFields.district + ", " + formFields.province,
-            date: new Date().toLocaleString(
-                "en-US",
-                {
-                    month: "short",
-                    day: "2-digit",
-                    year: "numeric",
-                }
-            )
-        }
-
-    const user = JSON.parse(localStorage.getItem("user"));
 
     try {
         window.paypal.Buttons({
@@ -244,12 +245,10 @@ const Checkout = ()=>{
             },
             onApprove: async (data, actions) => {
                 const details = await actions.order.capture();
-                console.log("Thanh toán thành công:", details);
-
                 const payload = {
-                    name: formFields.fullName,
-                    phone: formFields.phone,
-                    address: addressInfo.address,
+                    name: selectedAddress.name,
+                    phone: selectedAddress.phone,
+                    address: selectedAddress.address,
                     amount: parseInt(totalAmount),
                     email: user.email,
                     userId: user.userId,
@@ -257,7 +256,6 @@ const Checkout = ()=>{
                     paymentId: details.id,
                 };
 
-                // Gửi thông tin thanh toán đến backend
                 await postDataUser(`/api/orders/create`, payload);
                 await deleteData(`/api/cart/clear/${user.userId}`).then((res)=>{
                     context.setCartData([])
@@ -268,7 +266,7 @@ const Checkout = ()=>{
                     error: false,
                 });
 
-                history("/orders"); // Chuyển hướng sau khi hoàn thành
+                history("/orders");
             },
             onError: (err) => {
                 console.error("Lỗi trong quá trình thanh toán:", err);
@@ -278,7 +276,7 @@ const Checkout = ()=>{
                     error: true,
                 });
             }
-        }).render("#paypal-button-container"); // Đảm bảo bạn render button vào đúng container
+        }).render("#paypal-button-container"); 
     } catch (error) {
         console.error("Lỗi thanh toán:", error);
         context.setAlertBox({
@@ -298,6 +296,23 @@ const Checkout = ()=>{
                         <div className='col-md-8'>
                             <div className="card border p-3">
                                 <h5 className='pt-2' >Địa chỉ nhận hàng</h5>
+                                <FormControl component="fieldset">
+                                    <RadioGroup name="address" value={useNewAddress ? "new" : selectedAddressId} onChange={handleAddressSelection}>
+                                        {savedAddresses?.map(addr => (
+                                        <FormControlLabel
+                                            key={addr._id}
+                                            value={addr._id}
+                                            control={<Radio />}
+                                            label={`${addr.name} - ${addr.phone} - ${addr.address}`}
+                                        />
+                                        ))}
+                                        <FormControlLabel value="new" control={<Radio />} label="Thêm địa chỉ mới" />
+                                    </RadioGroup>
+                                </FormControl>
+
+                                {useNewAddress && (
+                                    <>
+                                    <h5>Địa chỉ mới</h5>
                                 <div className='row mt-3'>
                                     <div className='col-md-6'>
                                         <div className='form-group'>
@@ -327,7 +342,7 @@ const Checkout = ()=>{
                                             {
                                                 provinces?.length!==0 && 
                                                 provinces?.map((province)=>(
-                                                    <MenuItem key={province?.code} value={province?.name}>
+                                                    <MenuItem key={province?.id} value={province?.name}>
                                                         {province?.name}</MenuItem>
                                                 ))
                                             }
@@ -349,7 +364,7 @@ const Checkout = ()=>{
                                                     >
                                                         {districts?.length !== 0 &&
                                                             districts?.map((district) => (
-                                                                <MenuItem key={district?.code} value={district?.name}>
+                                                                <MenuItem key={district?.id} value={district?.name}>
                                                                     {district?.name}
                                                                 </MenuItem>
                                                             ))}
@@ -372,7 +387,7 @@ const Checkout = ()=>{
                                                     >
                                                         {wards?.length !== 0 &&
                                                             wards?.map((ward) => (
-                                                                <MenuItem key={ward?.code} value={ward?.name}>
+                                                                <MenuItem key={ward?.id} value={ward?.name}>
                                                                     {ward?.name}
                                                                 </MenuItem>
                                                             ))}
@@ -390,6 +405,8 @@ const Checkout = ()=>{
                                         </div>
                                     </div>
                                 </div>
+                                </>
+                            )}
 
                             </div>
                         </div>

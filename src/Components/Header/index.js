@@ -1,7 +1,6 @@
 
 import { Link } from 'react-router-dom';
 import Logo from '../../assets/images/logoclient.jpg'
-import CityDropdown from '../CityDropdown';
 import { Button } from '@mui/material';
 import { CiUser } from "react-icons/ci";
 import { IoCartOutline } from "react-icons/io5";
@@ -15,19 +14,11 @@ import { IoLogOutOutline } from "react-icons/io5";
 import { FaUser } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-
 import { Mycontext } from '../../App';
 import Avatar from '@mui/material/Avatar';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import ListItemIcon from '@mui/material/ListItemIcon';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import Tooltip from '@mui/material/Tooltip';
-import PersonAdd from '@mui/icons-material/PersonAdd';
-import Settings from '@mui/icons-material/Settings';
-import Logout from '@mui/icons-material/Logout';
 
 
 const Header =()=>{
@@ -65,11 +56,6 @@ const Header =()=>{
     return(
         <>
             <div className="headerWrapper">
-                {/* <div className="top-strip bg-blue">
-                    <div className="container">
-                        <p className="mb-0 mt-0 text-center"> Do ảnh hưởng của bảo <b>YAGI</b> nên hàng có thể bị giao chậm hơn so với dự kiến</p>
-                    </div>
-                </div> */}
 
                 <header className="header">
                     <div className="container">
@@ -80,11 +66,6 @@ const Header =()=>{
 
                             <div className="d-flex align-items-center col-sm-10 part2">
 
-                                {
-                                    context.cityList.length!==0 && <CityDropdown />
-                                }
-
-                                {/* <CityDropdown /> */}
                                 <SearchBox />
 
                                 <div className='part3 d-flex align-items-center ml-auto'>

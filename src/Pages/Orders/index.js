@@ -29,6 +29,7 @@ const Orders = () => {
         });
     }, [statusVal])
 
+
     const orderStatus=(status, id)=>{
         fetchDataFromApi(`/api/orders/${id}`).then((res)=>{
 

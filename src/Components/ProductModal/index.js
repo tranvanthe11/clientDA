@@ -73,6 +73,10 @@ const ProductModal = (props)=>{
                     </div>
 
                     <Rating name="read-only" value={parseInt(props?.data?.rating)} precision={0.5} readOnly size="small"/>
+                    {/* <div className='d-flex align-items-center mr-4'>
+                        <span>Đã bán:</span>
+                        <span className='ml-2'><b>{props?.data?.sold}</b></span>
+                    </div> */}
                 </div>
 
                 <hr />

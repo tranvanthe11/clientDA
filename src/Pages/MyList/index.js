@@ -65,7 +65,7 @@ const MyList = () => {
                                                             <div className="d-flex align-items-center cartItemImgWrapper">
                                                                 <div className="imgWrapper">
                                                                         <img className="w-100" alt={item?.productTitle}
-                                                                        src={`http://localhost:4000/upload/${item?.images}`} />
+                                                                        src={item?.images} />
                                                                 </div>
 
                                                                 <div className="info px-3">
